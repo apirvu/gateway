@@ -98,10 +98,7 @@ public class ExpiringStateIT {
 
     @Test
     @Specification({ "challenge.rejected.then.accepted/request" })
- //           "challenge.rejected.then.accepted/response"
     public void expiringState() throws Exception {
-
-
         k3po.finish();
     }
 
