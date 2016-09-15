@@ -1,28 +1,33 @@
-package org.kaazing.gateway.transport.http.security.auth;
-
-import static org.kaazing.test.util.ITUtil.createRuleChain;
+/**
+ * Copyright 2007-2016, Kaazing Corporation. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.kaazing.gateway.security.auth;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayClusterRule;
-import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.gateway.util.feature.EarlyAccessFeatures;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.ResolutionTestUtils;
 
 import java.util.concurrent.TimeUnit;
 
-import org.kaazing.test.util.ITUtil;
-import org.kaazing.test.util.ResolutionTestUtils;
-
-
-
-
-
-
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 
 public class ExpiringStateIT {
@@ -31,7 +36,7 @@ public class ExpiringStateIT {
 
     private final K3poRule k3po = new K3poRule();
 
-    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
+//    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
     private GatewayClusterRule gwRule = new GatewayClusterRule() {
         {
@@ -54,6 +59,7 @@ public class ExpiringStateIT {
                                                             String connectClusterLink,
                                                             String acceptMemberLink) {
         return new GatewayConfigurationBuilder()
+                // @formatter:off
                 .property("login.module.expiring.state", "true")
                 .cluster()
                   .accept(acceptClusterLink)
@@ -64,18 +70,25 @@ public class ExpiringStateIT {
                   .type("directory")
                   .accept("tcp://localhost:8080")
                   .accept(acceptMemberLink)
+                  .property("directory", "/public")
+                  .property("welcome-file", "index.html")
+                  .realmName("demo")
+                    .authorization()
+//                    .requireRole("AUTHORIZED")
+                  .done()
                 .done()
                 .security()
                   .realm()
                     .name("demo")
                     .description("Kaazing WebSocket Gateway Demo")
-                    .httpChallengeScheme("Basic")
+                    .httpChallengeScheme("Application Token")
+                    .loginModule()
+                      .type("class:org.kaazing.gateway.security.auth.ExpTokenCustomLoginModule")
                     .done()
                   .done()
-//                    .httpQueryParameter("token")
-//                .loginModule()
-//                .type("class:org.kaazing.gateway.management.test.util.TokenCustomLoginModule")
+                .done()
                 .done();
+        // @formatter:on
 
     }
 
@@ -84,9 +97,8 @@ public class ExpiringStateIT {
 
 
     @Test
-    @Specification({
-            "challenge.rejected.then.accepted/request",
-            "challenge.rejected.then.accepted/response" })
+    @Specification({ "challenge.rejected.then.accepted/request" })
+ //           "challenge.rejected.then.accepted/response"
     public void expiringState() throws Exception {
 
 
