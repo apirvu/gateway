@@ -35,7 +35,7 @@ public class TimerExpStateForOneGwIT {
 
 
     private final K3poRule robot = new K3poRule()
-            .setScriptRoot("org/kaazing/specification/http/saml/auth");
+            .setScriptRoot("org\kaazing\gateway\service\http\directory\auth");
 
     public GatewayRule gateway = new GatewayRule() {
         {
@@ -74,7 +74,7 @@ public class TimerExpStateForOneGwIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Specification("expState.challenge.rejected.then.accepted")
+    @Specification("expState.challenge.try.again.after.30seconds")
     @Test
     public void expStateTimer30sec() throws Exception {
         robot.finish();
