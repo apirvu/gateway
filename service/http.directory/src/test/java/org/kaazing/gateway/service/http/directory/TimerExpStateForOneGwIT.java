@@ -35,7 +35,7 @@ public class TimerExpStateForOneGwIT {
 
 
     private final K3poRule robot = new K3poRule()
-            .setScriptRoot("org\kaazing\gateway\service\http\directory\auth");
+            .setScriptRoot("org/kaazing/gateway/service/http/directory/auth");
 
     public GatewayRule gateway = new GatewayRule() {
         {
