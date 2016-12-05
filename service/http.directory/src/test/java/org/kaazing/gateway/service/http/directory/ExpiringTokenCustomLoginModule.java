@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.*;
-import javax.security.auth.login.FailedLoginException+
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
@@ -50,13 +50,15 @@ public class ExpiringTokenCustomLoginModule implements LoginModule {
     public static final String LOG_PREFIX = "[LM] ";
     public static final Logger logger = LoggerFactory.getLogger(CLASS_NAME);
     private static final String NUMBER_OF_ATTEMPTS_KEY = "NUMBER_OF_ATTEMPTS";
+    private static final String LOGGED_IN = "LOGGED_IN";
+
 
     private static final String TEST_PRINCIPAL_PASS = "testPrincipalPass";
     private static final String TEST_PRINCIPAL_NAME = "testPrincipalName";
     private DefaultUserConfig defaultPrincipal = new DefaultUserConfig();
 
     private ExpiringState expiringState;
-""
+
     // initial state
     protected Subject subject;
     private Map<String, ?> sharedState;
@@ -89,48 +91,36 @@ public class ExpiringTokenCustomLoginModule implements LoginModule {
         // verify the username/password
         String username = (String) sharedState.get("javax.security.auth.login.name");
         char[] password = (char[]) sharedState.get("javax.security.auth.login.password");
+
+        for (String s : sharedState.keySet()) {
+            logDebug("key: " + s);
+        }
+
         if (username == null || password == null) {
             throw new FailedLoginException("No UserName/Password to authenticate");
         }
+        String strPass = new String(password);
+        logDebug("Username: " + username);
+        logDebug("Password: " + strPass);
 
-        if (username.equals("joe") && password.length == 7 && password[0] == 'w' && password[1] == 'e'
-                && password[2] == 'l' && password[3] == 'c' && password[4] == 'o' && password[5] == 'm'
-                && password[6] == 'e') {
-            // authentication succeeded!!!
-            Integer numOfAttempts = null;
-            if ( expiringState != null ) {
-                Object o = expiringState.get(NUMBER_OF_ATTEMPTS_KEY);
-                if (o!=null) {
-                    numOfAttempts = (Integer) o;
-                    logDebug("numOfAttempts="+numOfAttempts);
-                } else {
-                    logDebug("o is null");
-                }
-            } else {
-                logDebug("expiringState is null");
-            }
-
-            if(numOfAttempts != null && numOfAttempts > 0){
-                logDebug("login successful");
-                // pass login send 200
-                // TO CONFIRM I think you return true
-                succeeded = true;
-                return true;
-            }
-
-            expiringState.putIfAbsent(NUMBER_OF_ATTEMPTS_KEY, new Integer(1), 10, TimeUnit.SECONDS);
-            //fail login / send 401
-            logDebug("401 - login failed!!");
-            succeeded = false;
-            return false;
-
-
-        } else {
-            logDebug("UserName/Password is Incorrect");
-            // authentication failed
-            succeeded = false;
-            throw new FailedLoginException("UserName/Password is Incorrect");
+        Boolean loggedIn = (Boolean) expiringState.get(LOGGED_IN);
+        logDebug("loggedIn: " + loggedIn);
+        if (loggedIn != null && loggedIn == true) {
+            succeeded = true;
+            return true;
         }
+        if ("joe".equals(username) && "welcome12".equals(strPass)) {
+            logDebug("login successful");
+            // pass login send 200
+            // TO CONFIRM I think you return true
+            expiringState.putIfAbsent(LOGGED_IN, true, 120, TimeUnit.SECONDS);
+            succeeded = true;
+            return true;
+        }
+        logDebug("login failed");
+        succeeded = false;
+        return false;
+
     }
 
     @Override

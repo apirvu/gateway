@@ -21,7 +21,7 @@ connected
 
 write method "GET"
 # probably don't even need authorized header
-write header "Authorized" "joe:welcome"
+#write header "Authorized" "joe:welcome"
 write close
 
 read status "401" "Not Authorized"
@@ -41,7 +41,7 @@ connected
 
 write method "GET"
 # probably don't even need authorized header
-write header "Authorized" "joe:welcome"
+#write header "Authorized" "joe:welcome"
 
 
 read status "200" "OK"
