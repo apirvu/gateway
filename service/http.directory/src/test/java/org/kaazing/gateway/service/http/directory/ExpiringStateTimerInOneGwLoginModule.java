@@ -44,9 +44,9 @@ import org.kaazing.gateway.server.spi.security.LoginResultCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExpiringTokenCustomLoginModule implements LoginModule {
+public class ExpiringStateTimerInOneGwLoginModule implements LoginModule {
 
-    public static final String CLASS_NAME = ExpiringTokenCustomLoginModule.class.getName();
+    public static final String CLASS_NAME = ExpiringStateTimerInOneGwLoginModule.class.getName();
     public static final String LOG_PREFIX = "[LM] ";
     public static final Logger logger = LoggerFactory.getLogger(CLASS_NAME);
     private static final String NUMBER_OF_ATTEMPTS_KEY = "NUMBER_OF_ATTEMPTS";

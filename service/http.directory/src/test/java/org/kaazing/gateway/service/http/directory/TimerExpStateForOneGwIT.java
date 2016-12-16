@@ -19,11 +19,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayClusterRule;
+import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.ResolutionTestUtils;
+import static org.kaazing.gateway.util.feature.EarlyAccessFeatures.LOGIN_MODULE_EXPIRING_STATE;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -40,11 +42,11 @@ public class TimerExpStateForOneGwIT {
     public GatewayRule gateway = new GatewayRule() {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
-                .property(HTTP_REALM_ACCEPT_OPTION.getPropertyName(), "true")
+                .property(LOGIN_MODULE_EXPIRING_STATE.getPropertyName(), "true")
                 .service()
                   .type("directory")
                   .accept("http://localhost:8080/")
-//                  .property("directory", "/public")
+                  .property("directory", "/public")
                   .crossOrigin()
 				    .allowOrigin("*")
                   .done()
@@ -61,7 +63,7 @@ public class TimerExpStateForOneGwIT {
                         .httpChallengeScheme("Basic")
                         .authorizationMode("challenge")
                         .loginModule()
-                            .type("class:org.kaazing.gateway.service.http.directory.ExpiringTokenCustomLoginModule")
+                            .type("class:org.kaazing.gateway.service.http.directory.ExpiringStateTimerInOneGwLoginModule")
                             .success("required")
                         .done()
                     .done()
